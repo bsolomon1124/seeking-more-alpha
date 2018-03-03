@@ -1,17 +1,18 @@
 from itertools import chain
+import logging
 import os
 import pickle
 import time
 
 from bs4 import BeautifulSoup, SoupStrainer
 from http_request_randomizer.requests.proxy.requestProxy import RequestProxy
-import requests
 
-USER_AGENT = 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36'  # noqa
+logging.basicConfig(filename='bad_req.log',level=logging.DEBUG)
+
+
 URL = 'https://seekingalpha.com/market-news/m-a?page={pageno}'
 STRAINER = SoupStrainer('ul', attrs={'class': 'mc-list',
                                      'id': 'mc-list'})
-HEADERS = {'User-Agent': USER_AGENT}
 
 
 def seeking_more_alpha(soup: BeautifulSoup):
@@ -30,17 +31,10 @@ def seeking_more_alpha(soup: BeautifulSoup):
             yield date, link, ticker, txt
 
 
-# def _read_one_pg(pageno):
-#     url = URL.format(pageno=pageno)
-#     response = requests.get(url, headers=HEADERS)
-#     return response
-
-
 def read_one_pg(pageno):
     url = URL.format(pageno=pageno)
     req_proxy = RequestProxy()
-    response = req_proxy.generate_proxied_request(url)
-    return response
+    return req_proxy.generate_proxied_request(url)
 
 
 def try_pages(limit=10, debug=False, sleep=0):
@@ -55,8 +49,7 @@ def try_pages(limit=10, debug=False, sleep=0):
             response = read_one_pg(pageno)
         if not response.status_code == 200:
             if debug:
-                # TODO: log this
-                print(response.url)
+                logging.debug(response.url)
             pageno += 1
             continue
         else:
