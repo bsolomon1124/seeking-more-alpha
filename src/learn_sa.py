@@ -1,5 +1,5 @@
 from functools import partial
-from itertools import islice, chain
+from itertools import islice
 import os
 import re
 
@@ -11,7 +11,6 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 
 from sklearn.cluster import (MiniBatchKMeans,
-                             DBSCAN,
                              AgglomerativeClustering)
 from sklearn.decomposition import TruncatedSVD, LatentDirichletAllocation, NMF
 from sklearn.feature_extraction.text import (CountVectorizer,
@@ -174,7 +173,7 @@ def loop_nclusters(rng, model, X):
     return inertias, mean_silhouettes
 
 
-rng = tuple(chain(range(4, 11), range(10, 21, 2)))
+rng = tuple((*range(4, 11), *range(10, 21, 2)))
 models = (
     MiniBatchKMeans(init='k-means++', n_init=5, batch_size=100,
                     init_size=1000, tol=0.001, random_state=444),
